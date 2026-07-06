@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Simple Will Generator</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<main class="page">
+		<h1>Simple Will Generator</h1>
+		<p class="intro">
+			Generates a basic will based on the
+			<a href="https://queenslandlawhandbook.org.au/the-queensland-law-handbook/contracts-money-and-property/wills-and-estates/model-will/" target="_blank" rel="noopener">Queensland Law Handbook model will</a>,
+			for a single executor and a sole beneficiary. This tool runs entirely in your browser &mdash; nothing you type is sent anywhere.
+		</p>
+		<p class="disclaimer">
+			This is a simple template intended for straightforward situations only. It is not legal advice.
+			If your circumstances are more complex (multiple beneficiaries, trusts, minor children, blended families, etc.)
+			you should consult a solicitor.
+		</p>
+
+		<form id="will-form" novalidate>
+			<fieldset>
+				<legend>Testator (you)</legend>
+
+				<label for="testator-name">Full legal name</label>
+				<input type="text" id="testator-name" name="testatorName" required autocomplete="name">
+
+				<label for="testator-address">Full address</label>
+				<textarea id="testator-address" name="testatorAddress" rows="2" required autocomplete="street-address"></textarea>
+
+				<label for="testator-dob">Date of birth</label>
+				<input type="date" id="testator-dob" name="testatorDob" required autocomplete="bday">
+
+				<label for="testator-occupation">Occupation <span class="optional">(optional)</span></label>
+				<input type="text" id="testator-occupation" name="testatorOccupation" autocomplete="organization-title">
+			</fieldset>
+
+			<fieldset>
+				<legend>Executor</legend>
+
+				<label for="executor-name">Full legal name</label>
+				<input type="text" id="executor-name" name="executorName" required>
+
+				<label for="executor-address">Full address</label>
+				<textarea id="executor-address" name="executorAddress" rows="2" required></textarea>
+			</fieldset>
+
+			<fieldset>
+				<legend>Beneficiary</legend>
+
+				<label for="beneficiary-name">Full legal name of sole beneficiary</label>
+				<input type="text" id="beneficiary-name" name="beneficiaryName" required>
+			</fieldset>
+
+			<button type="submit">Generate will PDF</button>
+		</form>
+
+		<p class="disclaimer footer-note">
+			The generated PDF leaves the execution date and witness details blank. Queensland law requires the will to be
+			signed by you and attested by two witnesses, both present at the same time, neither of whom is a beneficiary
+			(or married to one). Fill these in by hand when you sign.
+		</p>
+	</main>
+
+	<script src="vendor/jspdf.umd.min.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>
