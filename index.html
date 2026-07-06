@@ -11,54 +11,111 @@
 		<h1>Simple Will Generator</h1>
 		<p class="intro">
 			Generates a basic will based on the
-			<a href="https://queenslandlawhandbook.org.au/the-queensland-law-handbook/contracts-money-and-property/wills-and-estates/model-will/" target="_blank" rel="noopener">Queensland Law Handbook model will</a>,
-			for a single executor and a sole beneficiary. This tool runs entirely in your browser &mdash; nothing you type is sent anywhere.
+			<a href="https://queenslandlawhandbook.org.au/the-queensland-law-handbook/contracts-money-and-property/wills-and-estates/model-will/" target="_blank" rel="noopener">Queensland Law Handbook model will</a>.
+			This tool runs entirely in your browser &mdash; nothing you type is sent anywhere.
 		</p>
 		<p class="disclaimer">
 			This is a simple template intended for straightforward situations only. It is not legal advice.
-			If your circumstances are more complex (multiple beneficiaries, trusts, minor children, blended families, etc.)
-			you should consult a solicitor.
 		</p>
 
-		<form id="will-form" novalidate>
-			<fieldset>
-				<legend>Testator (you)</legend>
+		<section id="screening">
+			<h2>First, a few questions</h2>
+			<form id="screening-form" novalidate>
+				<fieldset class="question">
+					<legend>Will you appoint a single executor, or joint executors?</legend>
+					<label class="choice"><input type="radio" name="executorMode" value="single" required> Single executor</label>
+					<label class="choice"><input type="radio" name="executorMode" value="joint"> Joint executors</label>
+				</fieldset>
 
-				<label for="testator-name">Full legal name</label>
-				<input type="text" id="testator-name" name="testatorName" required autocomplete="name">
+				<fieldset class="question">
+					<legend>Will this will establish a trust (for example, a testamentary trust)?</legend>
+					<label class="choice"><input type="radio" name="hasTrust" value="yes" required> Yes</label>
+					<label class="choice"><input type="radio" name="hasTrust" value="no"> No</label>
+				</fieldset>
 
-				<label for="testator-address">Full address</label>
-				<textarea id="testator-address" name="testatorAddress" rows="2" required autocomplete="street-address"></textarea>
+				<fieldset class="question">
+					<legend>Do you have any minors (children under 18) in your care?</legend>
+					<label class="choice"><input type="radio" name="hasMinors" value="yes" required> Yes</label>
+					<label class="choice"><input type="radio" name="hasMinors" value="no"> No</label>
+				</fieldset>
 
-				<label for="testator-dob">Date of birth</label>
-				<input type="date" id="testator-dob" name="testatorDob" required autocomplete="bday">
-			</fieldset>
+				<fieldset class="question">
+					<legend>Do you have any pets or other animals in your care?</legend>
+					<label class="choice"><input type="radio" name="hasPets" value="yes" required> Yes</label>
+					<label class="choice"><input type="radio" name="hasPets" value="no"> No</label>
+				</fieldset>
 
-			<fieldset>
-				<legend>Executor</legend>
+				<fieldset class="question">
+					<legend>Will your entire estate go to a single beneficiary?</legend>
+					<label class="choice"><input type="radio" name="singleBeneficiary" value="yes" required> Yes</label>
+					<label class="choice"><input type="radio" name="singleBeneficiary" value="no"> No</label>
+				</fieldset>
 
-				<label for="executor-name">Full legal name</label>
-				<input type="text" id="executor-name" name="executorName" required>
+				<button type="submit">Continue</button>
+			</form>
+		</section>
 
-				<label for="executor-address">Full address</label>
-				<textarea id="executor-address" name="executorAddress" rows="2" required></textarea>
-			</fieldset>
+		<section id="gate-trust" hidden>
+			<p class="disclaimer">
+				This tool doesn't support wills that establish a trust. Testamentary trusts need drafting tailored to your
+				situation &mdash; please consult a solicitor.
+			</p>
+			<button type="button" class="secondary-button" data-action="back-to-screening">&larr; Change answers</button>
+		</section>
 
-			<fieldset>
-				<legend>Beneficiary</legend>
+		<section id="gate-unsupported" hidden>
+			<p class="disclaimer">
+				This tool doesn't support that combination of answers yet. Guardianship for minors, care arrangements for
+				pets, and multiple beneficiaries are all coming in a future update. For now, this tool only handles an
+				estate with no trust, no minors or pets in your care, going to a single beneficiary.
+			</p>
+			<p class="disclaimer">
+				If that doesn't match your situation, please consult a solicitor. Otherwise, go back and check your answers.
+			</p>
+			<button type="button" class="secondary-button" data-action="back-to-screening">&larr; Change answers</button>
+		</section>
 
-				<label for="beneficiary-name">Full legal name of sole beneficiary</label>
-				<input type="text" id="beneficiary-name" name="beneficiaryName" required>
-			</fieldset>
+		<section id="will-form-section" hidden>
+			<button type="button" class="secondary-button" data-action="back-to-screening">&larr; Change answers</button>
 
-			<button type="submit">Generate will PDF</button>
-		</form>
+			<form id="will-form" novalidate>
+				<fieldset>
+					<legend>Testator (you)</legend>
 
-		<p class="disclaimer footer-note">
-			The generated PDF leaves the execution date and witness details blank. Queensland law requires the will to be
-			signed by you and attested by two witnesses, both present at the same time, neither of whom is a beneficiary
-			(or married to one). Fill these in by hand when you sign.
-		</p>
+					<label for="testator-name">Full legal name</label>
+					<input type="text" id="testator-name" name="testatorName" required autocomplete="name">
+
+					<label for="testator-address">Full address</label>
+					<textarea id="testator-address" name="testatorAddress" rows="2" required autocomplete="street-address"></textarea>
+
+					<label for="testator-dob">Date of birth</label>
+					<input type="date" id="testator-dob" name="testatorDob" required autocomplete="bday">
+				</fieldset>
+
+				<fieldset id="executor-fieldset">
+					<legend>Executor(s)</legend>
+
+					<div id="executor-list"></div>
+
+					<button type="button" id="add-executor" class="secondary-button" hidden>+ Add another executor</button>
+				</fieldset>
+
+				<fieldset>
+					<legend>Beneficiary</legend>
+
+					<label for="beneficiary-name">Full legal name of sole beneficiary</label>
+					<input type="text" id="beneficiary-name" name="beneficiaryName" required>
+				</fieldset>
+
+				<button type="submit">Generate will PDF</button>
+			</form>
+
+			<p class="disclaimer footer-note">
+				The generated PDF leaves the execution date and witness details blank. Queensland law requires the will to be
+				signed by you and attested by two witnesses, both present at the same time, neither of whom is a beneficiary
+				(or married to one). Fill these in by hand when you sign.
+			</p>
+		</section>
 	</main>
 
 	<script src="vendor/jspdf.umd.min.js"></script>

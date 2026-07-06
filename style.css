@@ -92,10 +92,84 @@ button:hover {
 	background: #52301f;
 }
 
+.secondary-button {
+	background: transparent;
+	color: var(--accent);
+	border: 1px solid var(--accent);
+	font-size: 0.9rem;
+	padding: 0.5rem 1rem;
+	margin-bottom: 1rem;
+}
+
+.secondary-button:hover {
+	background: #efe6d8;
+}
+
+h2 {
+	font-size: 1.3rem;
+	color: var(--accent);
+}
+
+fieldset.question {
+	margin-bottom: 1rem;
+}
+
+fieldset.question legend {
+	font-weight: normal;
+	color: var(--ink);
+	font-size: 1rem;
+}
+
+label.choice {
+	display: inline-block;
+	margin: 0.5rem 1.5rem 0 0;
+	font-size: 1rem;
+}
+
+label.choice input {
+	margin-right: 0.4rem;
+}
+
 .footer-note {
 	margin-top: 2rem;
 }
 
 .field-error {
 	border-color: #a33 !important;
+}
+
+.executor-block {
+	border: 1px solid var(--border);
+	border-radius: 3px;
+	padding: 0.75rem 1rem 1rem;
+	margin-top: 0.75rem;
+}
+
+.executor-block:first-child {
+	margin-top: 0;
+}
+
+.executor-block-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+
+.executor-block-header span {
+	font-weight: bold;
+	font-size: 0.9rem;
+}
+
+.remove-executor {
+	background: transparent;
+	color: #a33;
+	border: none;
+	padding: 0;
+	font-size: 0.85rem;
+	text-decoration: underline;
+}
+
+.remove-executor:hover {
+	background: transparent;
+	color: #711;
 }
