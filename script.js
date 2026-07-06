@@ -33,7 +33,6 @@
 			testatorName: form.testatorName.value.trim(),
 			testatorAddress: form.testatorAddress.value.trim(),
 			testatorDob: form.testatorDob.value,
-			testatorOccupation: form.testatorOccupation.value.trim(),
 			executorName: form.executorName.value.trim(),
 			executorAddress: form.executorAddress.value.trim(),
 			beneficiaryName: form.beneficiaryName.value.trim()
@@ -61,19 +60,22 @@
 	}
 
 	function buildWillText(data) {
-		var opening = 'THIS IS THE LAST WILL AND TESTAMENT OF ME, ' + data.testatorName +
-			' (born ' + formatDob(data.testatorDob) + '), of ' + data.testatorAddress +
-			', in the State of Queensland' + (data.testatorOccupation ? ', ' + data.testatorOccupation : '') + '.';
+		var openingLines = [
+			'This is the last Will and Testament of me,',
+			data.testatorName + ',',
+			'of ' + data.testatorAddress + ',',
+			'born ' + formatDob(data.testatorDob) + ' —'
+		];
 
 		var clauses = [
 			'I REVOKE all former wills and codicils and declare this to be my last Will.',
 			'I APPOINT ' + data.executorName + ' of ' + data.executorAddress +
-				' to be the Executor and Trustee of this my Will (hereinafter called "my Trustee").',
+				' to be the Executor and Trustee of this my Will.',
 			'I GIVE, DEVISE AND BEQUEATH the whole of my estate, both real and personal, UNTO ' +
 				data.beneficiaryName + ' absolutely.'
 		];
 
-		return { opening: opening, clauses: clauses };
+		return { openingLines: openingLines, clauses: clauses };
 	}
 
 	function generatePdf(data) {
@@ -118,7 +120,7 @@
 			doc.line(x, y, x + width, y);
 			doc.setFont('times', 'normal');
 			doc.setFontSize(10);
-			doc.text(label, x, y + 5);
+			doc.text(label, x, y + 4);
 		}
 
 		// Title
@@ -129,7 +131,9 @@
 
 		var content = buildWillText(data);
 
-		writeParagraph(content.opening);
+		content.openingLines.forEach(function (line) {
+			writeParagraph(line);
+		});
 		spacer(4);
 
 		content.clauses.forEach(function (clause, index) {
@@ -137,10 +141,10 @@
 			spacer(3);
 		});
 
-		spacer(8);
+		spacer(6);
 		writeParagraph('IN WITNESS WHEREOF I have to this my last Will and Testament set my hand this ' +
-			'_____________ day of _____________________ 20______.');
-		spacer(14);
+			'_____________ day of _____________________ 20______ in the State of Queensland.');
+		spacer(12);
 
 		var colWidth = (usableWidth - 10) / 2;
 		var col2X = marginLeft + colWidth + 10;
@@ -152,27 +156,32 @@
 		signatureLine(data.testatorName, colWidth, marginLeft);
 		spacer(14);
 
-		writeParagraph('IN OUR JOINT PRESENCE AND ATTESTED BY US IN THE PRESENCE OF HIM/HER AND EACH OTHER:');
+		writeParagraph('IN OUR JOINT PRESENCE AND ATTESTED BY US IN THE PRESENCE OF THE AFORENAMED TESTATOR AND EACH OTHER:');
 		spacer(10);
 
 		ensureSpace(20);
-		signatureLine('Signature of witness 1', colWidth, marginLeft);
-		signatureLine('Signature of witness 2', colWidth, col2X);
-		spacer(13);
+		signatureLine('Signature of First Witness', colWidth, marginLeft);
+		signatureLine('Signature of Second Witness', colWidth, col2X);
+		spacer(16);
 
 		ensureSpace(20);
 		signatureLine('Full name', colWidth, marginLeft);
 		signatureLine('Full name', colWidth, col2X);
-		spacer(13);
+		spacer(14);
 
 		ensureSpace(20);
 		signatureLine('Occupation', colWidth, marginLeft);
 		signatureLine('Occupation', colWidth, col2X);
-		spacer(13);
+		spacer(14);
 
 		ensureSpace(20);
 		signatureLine('Address', colWidth, marginLeft);
 		signatureLine('Address', colWidth, col2X);
+		spacer(7);
+
+		ensureSpace(20);
+		signatureLine('', colWidth, marginLeft);
+		signatureLine('', colWidth, col2X);
 
 		var filenameSafeName = data.testatorName.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '');
 		doc.save('will-' + (filenameSafeName || 'draft') + '.pdf');
