@@ -42,7 +42,7 @@
 			return;
 		}
 
-		initializeExecutorTiers(answers.get('executorMode'));
+		initializeExecutorTiers();
 		showSection('will-form-section');
 	});
 
@@ -175,9 +175,9 @@
 		refreshTierUI(tier);
 	}
 
-	function initializeExecutorTiers(mode) {
+	function initializeExecutorTiers() {
 		executorTiersContainer.innerHTML = '';
-		var tier = createTierBlock(mode === 'joint' ? 2 : 1);
+		var tier = createTierBlock(1);
 		executorTiersContainer.appendChild(tier);
 		refreshTierUI(tier);
 		refreshTierLabels();
