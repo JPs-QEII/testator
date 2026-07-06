@@ -142,21 +142,18 @@
 			'_____________ day of _____________________ 20______.');
 		spacer(14);
 
-		writeParagraph('SIGNED BY THE SAID ' + data.testatorName + ' )', { bold: false });
-		spacer(2);
-		writeParagraph('in the presence of and then by us )');
-		writeParagraph('in the joint presence of him/her and each other: )');
-		spacer(10);
+		var colWidth = (usableWidth - 10) / 2;
+		var col2X = marginLeft + colWidth + 10;
+
+		writeParagraph('SIGNED BY ' + data.testatorName + ' —');
+		spacer(16);
 
 		ensureSpace(20);
-		signatureLine('Signature of testator', usableWidth, marginLeft);
-		spacer(20);
+		signatureLine(data.testatorName, colWidth, marginLeft);
+		spacer(14);
 
 		writeParagraph('IN OUR JOINT PRESENCE AND ATTESTED BY US IN THE PRESENCE OF HIM/HER AND EACH OTHER:');
 		spacer(10);
-
-		var colWidth = (usableWidth - 10) / 2;
-		var col2X = marginLeft + colWidth + 10;
 
 		ensureSpace(20);
 		signatureLine('Signature of witness 1', colWidth, marginLeft);
