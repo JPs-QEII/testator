@@ -302,6 +302,15 @@
 		return sentences.join(' ');
 	}
 
+	function applyClauseTerminators(clauses) {
+		return clauses.map(function (clause, index) {
+			var trimmed = clause.replace(/\.\s*$/, '');
+			if (index === clauses.length - 1) return trimmed + '.';
+			if (index === clauses.length - 2) return trimmed + '; and';
+			return trimmed + ';';
+		});
+	}
+
 	function buildWillText(data) {
 		var openingLines = [
 			'This is the last Will and Testament of me,',
@@ -310,12 +319,12 @@
 			'born ' + formatDob(data.testatorDob) + ' —'
 		];
 
-		var clauses = [
+		var clauses = applyClauseTerminators([
 			'I REVOKE all former wills and codicils and declare this to be my last Will.',
 			buildExecutorClause(data.executorTiers),
 			'I GIVE, DEVISE AND BEQUEATH the whole of my estate, both real and personal, UNTO ' +
 				data.beneficiaryName + ' absolutely.'
-		];
+		]);
 
 		return { openingLines: openingLines, clauses: clauses };
 	}
@@ -436,10 +445,11 @@
 			spacer(3);
 		});
 
-		spacer(6);
-		writeParagraph('IN WITNESS WHEREOF I have to this my last Will and Testament set my hand this ' +
-			'_____________ day of _____________________ 20______ in the State of Queensland.');
-		spacer(12);
+		spacer(4);
+		writeParagraph('IN WITNESS WHEREOF I have to this my last Will and Testament set my hand this');
+		spacer(2);
+		writeParagraph('_____________ day of _____________________ 20______ in the State of Queensland.');
+		spacer(10);
 
 		var colWidth = (usableWidth - 10) / 2;
 		var col2X = marginLeft + colWidth + 10;
@@ -449,10 +459,10 @@
 
 		ensureSpace(20);
 		signatureLine(data.testatorName, colWidth, marginLeft);
-		spacer(14);
+		spacer(12);
 
-		writeParagraph('IN OUR JOINT PRESENCE AND ATTESTED BY US IN THE PRESENCE OF THE AFORENAMED TESTATOR AND EACH OTHER:');
-		spacer(10);
+		writeParagraph('IN OUR JOINT PRESENCE AND ATTESTED BY US IN THE PRESENCE OF THE AFORENAMED TESTATOR AND EACH OTHER —');
+		spacer(8);
 
 		ensureSpace(20);
 		signatureLine('Signature of First Witness', colWidth, marginLeft);
@@ -460,19 +470,19 @@
 		spacer(16);
 
 		ensureSpace(20);
-		signatureLine('Full name', colWidth, marginLeft);
-		signatureLine('Full name', colWidth, col2X);
+		signatureLine('Full name of First Witness', colWidth, marginLeft);
+		signatureLine('Full name of Second Witness', colWidth, col2X);
+		spacer(12);
+
+		ensureSpace(20);
+		signatureLine('Occupation of First Witness', colWidth, marginLeft);
+		signatureLine('Occupation of Second Witness', colWidth, col2X);
 		spacer(14);
 
 		ensureSpace(20);
-		signatureLine('Occupation', colWidth, marginLeft);
-		signatureLine('Occupation', colWidth, col2X);
-		spacer(14);
-
-		ensureSpace(20);
-		signatureLine('Address', colWidth, marginLeft);
-		signatureLine('Address', colWidth, col2X);
-		spacer(7);
+		signatureLine('Address of First Witness', colWidth, marginLeft);
+		signatureLine('Address of Second Witness', colWidth, col2X);
+		spacer(13);
 
 		ensureSpace(20);
 		signatureLine('', colWidth, marginLeft);
