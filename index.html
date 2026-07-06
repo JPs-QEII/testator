@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Simple Will Generator</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 	<main class="page">
@@ -95,9 +95,9 @@
 				<fieldset id="executor-fieldset">
 					<legend>Executor(s)</legend>
 
-					<div id="executor-list"></div>
+					<div id="executor-tiers"></div>
 
-					<button type="button" id="add-executor" class="secondary-button" hidden>+ Add another executor</button>
+					<button type="button" id="add-tier" class="secondary-button">+ Add a backup (if the above can't act)</button>
 				</fieldset>
 
 				<fieldset>
@@ -119,6 +119,6 @@
 	</main>
 
 	<script src="vendor/jspdf.umd.min.js"></script>
-	<script src="script.js"></script>
+	<script src="script.js?v=3"></script>
 </body>
 </html>

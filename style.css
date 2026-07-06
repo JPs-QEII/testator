@@ -138,7 +138,47 @@ label.choice input {
 	border-color: #a33 !important;
 }
 
+.executor-tier {
+	background: #f7f2e8;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 0.75rem 1rem 1rem;
+	margin-top: 1rem;
+}
+
+.executor-tier:first-child {
+	margin-top: 0;
+}
+
+.executor-tier-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-bottom: 0.5rem;
+}
+
+.executor-tier-header h3 {
+	margin: 0;
+	font-size: 1rem;
+	color: var(--accent);
+}
+
+.remove-tier {
+	background: transparent;
+	color: #a33;
+	border: none;
+	padding: 0;
+	font-size: 0.85rem;
+	text-decoration: underline;
+}
+
+.remove-tier:hover {
+	background: transparent;
+	color: #711;
+}
+
 .executor-block {
+	background: var(--paper);
 	border: 1px solid var(--border);
 	border-radius: 3px;
 	padding: 0.75rem 1rem 1rem;

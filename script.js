@@ -2,14 +2,15 @@
 	'use strict';
 
 	var SECTION_IDS = ['screening', 'gate-trust', 'gate-unsupported', 'will-form-section'];
-	var MAX_EXECUTORS = 4;
+	var MAX_EXECUTORS_PER_TIER = 4;
+	var MAX_TIERS = 4;
+	var TIER_LABELS = ['Primary executor(s)', 'First backup executor(s)', 'Second backup executor(s)', 'Third backup executor(s)'];
 
 	var screeningForm = document.getElementById('screening-form');
 	var form = document.getElementById('will-form');
-	var executorList = document.getElementById('executor-list');
-	var addExecutorBtn = document.getElementById('add-executor');
+	var executorTiersContainer = document.getElementById('executor-tiers');
+	var addTierBtn = document.getElementById('add-tier');
 
-	var executorMode = 'single';
 	var executorUid = 0;
 
 	function showSection(id) {
@@ -41,13 +42,9 @@
 			return;
 		}
 
-		setExecutorMode(answers.get('executorMode'));
+		initializeExecutorTiers(answers.get('executorMode'));
 		showSection('will-form-section');
 	});
-
-	function minExecutors() {
-		return executorMode === 'joint' ? 2 : 1;
-	}
 
 	function createExecutorBlock() {
 		executorUid += 1;
@@ -66,7 +63,9 @@
 		removeBtn.type = 'button';
 		removeBtn.className = 'remove-executor';
 		removeBtn.textContent = 'Remove';
-		removeBtn.addEventListener('click', function () { removeExecutorBlock(block); });
+		removeBtn.addEventListener('click', function () {
+			removeExecutorBlock(block.closest('.executor-tier'), block);
+		});
 		header.appendChild(removeBtn);
 
 		block.appendChild(header);
@@ -96,56 +95,102 @@
 		return block;
 	}
 
-	function refreshExecutorUI() {
-		var blocks = executorList.querySelectorAll('.executor-block');
-		var min = minExecutors();
+	function createTierBlock(initialCount) {
+		var tier = document.createElement('div');
+		tier.className = 'executor-tier';
 
+		var header = document.createElement('div');
+		header.className = 'executor-tier-header';
+
+		var title = document.createElement('h3');
+		header.appendChild(title);
+
+		var removeTierBtn = document.createElement('button');
+		removeTierBtn.type = 'button';
+		removeTierBtn.className = 'remove-tier';
+		removeTierBtn.textContent = 'Remove this backup level';
+		removeTierBtn.addEventListener('click', function () { removeTier(tier); });
+		header.appendChild(removeTierBtn);
+
+		tier.appendChild(header);
+
+		var list = document.createElement('div');
+		list.className = 'executor-list';
+		tier.appendChild(list);
+
+		var addExecutorBtn = document.createElement('button');
+		addExecutorBtn.type = 'button';
+		addExecutorBtn.className = 'secondary-button';
+		addExecutorBtn.textContent = '+ Add another executor to this level';
+		addExecutorBtn.addEventListener('click', function () {
+			if (list.querySelectorAll('.executor-block').length >= MAX_EXECUTORS_PER_TIER) return;
+			list.appendChild(createExecutorBlock());
+			refreshTierUI(tier);
+		});
+		tier.appendChild(addExecutorBtn);
+
+		for (var i = 0; i < (initialCount || 1); i++) {
+			list.appendChild(createExecutorBlock());
+		}
+
+		return tier;
+	}
+
+	function refreshTierUI(tier) {
+		var blocks = tier.querySelectorAll('.executor-block');
 		blocks.forEach(function (block, index) {
 			block.querySelector('.executor-block-header span').textContent =
-				executorMode === 'joint' ? ('Executor ' + (index + 1)) : 'Executor';
-			block.querySelector('.remove-executor').hidden = blocks.length <= min;
+				blocks.length > 1 ? ('Executor ' + (index + 1)) : 'Executor';
+			block.querySelector('.remove-executor').hidden = blocks.length <= 1;
 		});
-
-		addExecutorBtn.hidden = executorMode === 'single' || blocks.length >= MAX_EXECUTORS;
+		tier.querySelector('.secondary-button').hidden = blocks.length >= MAX_EXECUTORS_PER_TIER;
 	}
 
-	function addExecutorBlock() {
-		if (executorList.querySelectorAll('.executor-block').length >= MAX_EXECUTORS) return;
-		executorList.appendChild(createExecutorBlock());
-		refreshExecutorUI();
+	function refreshTierLabels() {
+		var tiers = executorTiersContainer.querySelectorAll('.executor-tier');
+		tiers.forEach(function (tier, index) {
+			tier.querySelector('.executor-tier-header h3').textContent = TIER_LABELS[index] || ('Backup executor(s) ' + index);
+			tier.querySelector('.remove-tier').hidden = index === 0;
+		});
+		addTierBtn.hidden = tiers.length >= MAX_TIERS;
 	}
 
-	function removeExecutorBlock(block) {
-		if (executorList.querySelectorAll('.executor-block').length <= minExecutors()) return;
+	function addTier() {
+		if (executorTiersContainer.querySelectorAll('.executor-tier').length >= MAX_TIERS) return;
+		var tier = createTierBlock(1);
+		executorTiersContainer.appendChild(tier);
+		refreshTierUI(tier);
+		refreshTierLabels();
+	}
+
+	function removeTier(tier) {
+		if (executorTiersContainer.querySelectorAll('.executor-tier').length <= 1) return;
+		tier.remove();
+		refreshTierLabels();
+	}
+
+	function removeExecutorBlock(tier, block) {
+		if (tier.querySelectorAll('.executor-block').length <= 1) return;
 		block.remove();
-		refreshExecutorUI();
+		refreshTierUI(tier);
 	}
 
-	function setExecutorMode(mode) {
-		executorMode = mode;
-		var blocks = executorList.querySelectorAll('.executor-block');
-
-		if (mode === 'single') {
-			for (var i = blocks.length - 1; i >= 1; i--) {
-				blocks[i].remove();
-			}
-		}
-
-		while (executorList.querySelectorAll('.executor-block').length < minExecutors()) {
-			executorList.appendChild(createExecutorBlock());
-		}
-
-		refreshExecutorUI();
+	function initializeExecutorTiers(mode) {
+		executorTiersContainer.innerHTML = '';
+		var tier = createTierBlock(mode === 'joint' ? 2 : 1);
+		executorTiersContainer.appendChild(tier);
+		refreshTierUI(tier);
+		refreshTierLabels();
 	}
 
-	addExecutorBtn.addEventListener('click', addExecutorBlock);
+	addTierBtn.addEventListener('click', addTier);
 
 	form.addEventListener('submit', function (event) {
 		event.preventDefault();
 		clearErrors();
 
 		var data = collectFormData();
-		var executorBlocks = Array.prototype.slice.call(executorList.querySelectorAll('.executor-block'));
+		var executorBlocks = Array.prototype.slice.call(executorTiersContainer.querySelectorAll('.executor-block'));
 		var missing = validate(data, executorBlocks);
 
 		if (missing.length > 0) {
@@ -164,19 +209,23 @@
 	}
 
 	function collectFormData() {
-		var executors = [];
-		executorList.querySelectorAll('.executor-block').forEach(function (block) {
-			executors.push({
-				name: block.querySelector('.executor-name-input').value.trim(),
-				address: block.querySelector('.executor-address-input').value.trim()
+		var executorTiers = [];
+		executorTiersContainer.querySelectorAll('.executor-tier').forEach(function (tier) {
+			var tierExecutors = [];
+			tier.querySelectorAll('.executor-block').forEach(function (block) {
+				tierExecutors.push({
+					name: block.querySelector('.executor-name-input').value.trim(),
+					address: block.querySelector('.executor-address-input').value.trim()
+				});
 			});
+			executorTiers.push(tierExecutors);
 		});
 
 		return {
 			testatorName: form.testatorName.value.trim(),
 			testatorAddress: form.testatorAddress.value.trim(),
 			testatorDob: form.testatorDob.value,
-			executors: executors,
+			executorTiers: executorTiers,
 			beneficiaryName: form.beneficiaryName.value.trim()
 		};
 	}
@@ -194,9 +243,14 @@
 			if (!pair[1]) missing.push(pair[0]);
 		});
 
+		var flatExecutors = [];
+		data.executorTiers.forEach(function (tier) {
+			tier.forEach(function (executor) { flatExecutors.push(executor); });
+		});
+
 		executorBlocks.forEach(function (block, index) {
-			if (!data.executors[index].name) missing.push(block.querySelector('.executor-name-input'));
-			if (!data.executors[index].address) missing.push(block.querySelector('.executor-address-input'));
+			if (!flatExecutors[index].name) missing.push(block.querySelector('.executor-name-input'));
+			if (!flatExecutors[index].address) missing.push(block.querySelector('.executor-address-input'));
 		});
 
 		return missing;
@@ -216,6 +270,38 @@
 		return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
 	}
 
+	function describeTier(tier) {
+		return joinWithAnd(tier.map(function (executor) {
+			return executor.name + ' of ' + executor.address;
+		}));
+	}
+
+	function buildExecutorClause(executorTiers) {
+		var sentences = [];
+
+		executorTiers.forEach(function (tier, index) {
+			var actPhrase = tier.length === 1
+				? 'to be the Executor and Trustee'
+				: 'to act jointly as the Executors and Trustees';
+
+			if (index === 0) {
+				sentences.push('I APPOINT ' + describeTier(tier) + ' ' + actPhrase + ' of this my Will.');
+			} else {
+				var precedingTier = executorTiers[index - 1];
+				var precedingSubject = precedingTier.length === 1 ? describeTier(precedingTier) : 'all of them';
+				sentences.push('If ' + precedingSubject + ' shall predecease me, or be otherwise unable or unwilling to act, ' +
+					'I APPOINT ' + describeTier(tier) + ' ' + actPhrase + ' of this my Will in substitution.');
+			}
+
+			if (tier.length > 1) {
+				sentences.push('If any one or more of them shall predecease me, or be otherwise unable or unwilling to act, ' +
+					'the remaining shall act as if they alone had been appointed Executor and Trustee of this my Will.');
+			}
+		});
+
+		return sentences.join(' ');
+	}
+
 	function buildWillText(data) {
 		var openingLines = [
 			'This is the last Will and Testament of me,',
@@ -224,17 +310,9 @@
 			'born ' + formatDob(data.testatorDob) + ' —'
 		];
 
-		var executorDescriptions = data.executors.map(function (executor) {
-			return executor.name + ' of ' + executor.address;
-		});
-
-		var executorClause = data.executors.length === 1
-			? 'I APPOINT ' + executorDescriptions[0] + ' to be the Executor and Trustee of this my Will.'
-			: 'I APPOINT ' + joinWithAnd(executorDescriptions) + ' to act jointly as the Executors and Trustees of this my Will.';
-
 		var clauses = [
 			'I REVOKE all former wills and codicils and declare this to be my last Will.',
-			executorClause,
+			buildExecutorClause(data.executorTiers),
 			'I GIVE, DEVISE AND BEQUEATH the whole of my estate, both real and personal, UNTO ' +
 				data.beneficiaryName + ' absolutely.'
 		];
